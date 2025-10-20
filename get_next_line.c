@@ -6,7 +6,7 @@
 /*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 15:08:31 by vpoka             #+#    #+#             */
-/*   Updated: 2025/10/20 23:59:17 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/21 00:51:58 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,15 @@ static char	*get_line(char **content)
 	char	*line;
 	char	*tmp;
 
+	if (!content || !*content)
+		return (NULL);
 	newline_pos = gnl_strchr(*content, '\n');
 	if (!newline_pos)
-		return (*content);
+	{
+		line = gnl_strdup(*content);
+		del_str(content);
+		return (line);
+	}
 	tmp = gnl_strdup(newline_pos + 1);
 	if (!tmp)
 		return (NULL);
