@@ -3,76 +3,89 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vpoka <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 15:08:31 by vpoka             #+#    #+#             */
-/*   Updated: 2024/11/16 12:59:16 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/20 23:59:17 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+/**
+ * @brief frees and set a char* to null if not null
+ */
 static void	del_str(char **str)
 {
-	if (*str)
+	if (str && *str)
 	{
 		free(*str);
 		*str = NULL;
 	}
 }
 
-static char	*fill_content(int fd, char **content)
+/**
+ * @brief reads from fd until a '\n' is in content
+ * 
+ * @return 0 on success, 1 on error
+ */
+static int	read_till_newline(int fd, char **content)
 {
-	ssize_t	read_size;
+	ssize_t	bytes_read;
 	char	*buffer;
 	char	*temp;
-	int		i;
 
+	if (gnl_strchr(*content, '\n'))
+		return (0);
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
-		return (NULL);
-	read_size = read(fd, buffer, BUFFER_SIZE);
-	i = 1;
-	while (read_size > 0)
+		return (1);
+	buffer[bytes_read] = '\0';
+	while (1)
 	{
-		buffer[read_size] = '\0';
-		temp = ft_strjoin(*content, buffer);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read <= 0)
+			break;
+		temp = gnl_strjoin(*content, buffer);
 		del_str(content);
 		*content = temp;
-		if (!temp || (i && ft_strchr(*content, '\n'))
-			|| (!i && ft_strchr(buffer, '\n')))
-			break ;
-		read_size = read(fd, buffer, BUFFER_SIZE);
-		i = 0;
+		if (!temp || gnl_strchr(buffer, '\n'))
+			break;
 	}
-	if (read_size < 0)
-		return (del_str(&buffer), NULL);
-	return (del_str(&buffer), *content);
+	del_str(&buffer);
+	if (bytes_read < 0)
+		return (1);
+	return (0);
 }
 
-static char	*fill_result(char **content)
+/**
+ * @brief returns a duped string from content start -> '\n'
+ * 
+ * It will search for a newline character in content:
+ * 1. if none is found it means the file hit the end and it returns content.
+ * 2. otherwise, it will 'cut' it from content.
+ * That means it will dup from content start -> the newline char.
+ * Then it will delete that part from content and return the 'cut'
+ * part as the result.
+ * 
+ * @return char* to new string
+ */
+static char	*get_line(char **content)
 {
-	char	*trimed;
-	char	*start;
-	char	*end;
+	char	*newline_pos;
+	char	*line;
+	char	*tmp;
 
-	start = *content;
-	end = ft_strchr(start, '\n');
-	if (!end)
-	{
-		trimed = NULL;
-		if (start && *start)
-			trimed = ft_strdup(start);
-		del_str(content);
-		return (trimed);
-	}
-	trimed = ft_strdup(end + 1);
-	if (!trimed)
+	newline_pos = gnl_strchr(*content, '\n');
+	if (!newline_pos)
+		return (*content);
+	tmp = gnl_strdup(newline_pos + 1);
+	if (!tmp)
 		return (NULL);
-	*content = trimed;
-	trimed = ft_substr(start, 0, (end - start + 1));
-	del_str(&start);
-	return (trimed);
+	line = gnl_substr(*content, 0, (newline_pos - *content + 1));
+	del_str(content);
+	*content = tmp;
+	return (line);
 }
 
 char	*get_next_line(int fd)
@@ -81,11 +94,11 @@ char	*get_next_line(int fd)
 	char		*result;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	if (!fill_content(fd, &content))
 		return (del_str(&content), NULL);
-	result = fill_result(&content);
-	if (!result || !(*result))
+	if (read_till_newline(fd, &content))
+		return (del_str(&content), NULL);
+	result = get_line(&content);
+	if (!result || !*result)
 		return (del_str(&content), NULL);
 	return (result);
 }
