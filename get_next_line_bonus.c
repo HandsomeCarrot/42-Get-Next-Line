@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vpoka <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 15:08:31 by vpoka             #+#    #+#             */
-/*   Updated: 2024/11/16 13:03:08 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/20 22:36:18 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,11 @@ static char	*fill_content(int fd, char **content)
 	while (read_size > 0)
 	{
 		buffer[read_size] = '\0';
-		temp = ft_strjoin(*content, buffer);
+		temp = gnl_strjoin(*content, buffer);
 		del_str(content);
 		*content = temp;
-		if (!temp || (i && ft_strchr(*content, '\n'))
-			|| (!i && ft_strchr(buffer, '\n')))
+		if (!temp || (i && gnl_strchr(*content, '\n'))
+			|| (!i && gnl_strchr(buffer, '\n')))
 			break ;
 		read_size = read(fd, buffer, BUFFER_SIZE);
 		i = 0;
@@ -57,20 +57,20 @@ static char	*fill_result(char **content)
 	char	*end;
 
 	start = *content;
-	end = ft_strchr(start, '\n');
+	end = gnl_strchr(start, '\n');
 	if (!end)
 	{
 		trimed = NULL;
 		if (start && *start)
-			trimed = ft_strdup(start);
+			trimed = gnl_strdup(start);
 		del_str(content);
 		return (trimed);
 	}
-	trimed = ft_strdup(end + 1);
+	trimed = gnl_strdup(end + 1);
 	if (!trimed)
 		return (NULL);
 	*content = trimed;
-	trimed = ft_substr(start, 0, (end - start + 1));
+	trimed = gnl_substr(start, 0, (end - start + 1));
 	del_str(&start);
 	return (trimed);
 }
