@@ -6,7 +6,7 @@
 /*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 15:08:31 by vpoka             #+#    #+#             */
-/*   Updated: 2025/10/21 00:51:58 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/21 00:57:10 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,12 @@ static int	read_till_newline(int fd, char **content)
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (1);
-	buffer[bytes_read] = '\0';
 	while (1)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 			break;
+		buffer[bytes_read] = '\0';
 		temp = gnl_strjoin(*content, buffer);
 		del_str(content);
 		*content = temp;
