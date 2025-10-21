@@ -6,7 +6,7 @@
 /*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 15:08:31 by vpoka             #+#    #+#             */
-/*   Updated: 2025/10/21 01:42:15 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/21 02:05:19 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,28 @@ static void	del_str(char **str)
 	{
 		free(*str);
 		*str = NULL;
+	}
+}
+
+/**
+ * @brief Free and clear a dynamically allocated string used by get_next_line.
+ *
+ * This internal helper frees the memory pointed to by *content (if non-NULL)
+ * and sets *content to NULL to prevent dangling pointers. It is safe to call
+ * with a NULL pointer or when *content is already NULL.
+ *
+ * @param content Address of the char* that points to the allocated buffer to
+ *                be freed and nulled.
+ */
+static void	del_content(char **content)
+{
+	int	i;
+
+	i = 0;
+	while (i < MAX_FD)
+	{
+		del_str(content + i);
+		i++;
 	}
 }
 
@@ -164,11 +186,11 @@ char	*get_next_line(int fd)
 	char		*result;
 
 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0 || MAX_FD <= 0)
-		return (NULL);
+		return (del_content(content), NULL);
 	if (read_till_newline(fd, content + fd))
-		return (del_str(&content[fd]), NULL);
-	result = get_line(&content[fd]);
+		return (del_str(content + fd), NULL);
+	result = get_line(content + fd);
 	if (!result || !*result)
-		return (del_str(&content[fd]), NULL);
+		return (del_str(content + fd), NULL);
 	return (result);
 }
