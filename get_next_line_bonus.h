@@ -6,7 +6,7 @@
 /*   By: vpoka <vpoka@student.42vienna.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/26 14:23:00 by vpoka             #+#    #+#             */
-/*   Updated: 2025/10/20 22:36:18 by vpoka            ###   ########.fr       */
+/*   Updated: 2025/10/21 02:13:13 by vpoka            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,11 @@
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 5
 # endif /* BUFFER_SIZE */
-//with (ulimit -n) command u can know max amount of opened files at once.
+
 # ifndef MAX_FD
-#  define MAX_FD 1024
-# endif
+#  define MAX_FD 10
+# endif /* MAX_FD */
+
 # include <stdlib.h>
 # include <unistd.h>
 
